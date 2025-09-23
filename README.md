@@ -1,5 +1,13 @@
 # JWT Authentication System - Development Progress
 
+## Tech Stack
+
+![.NET](https://img.shields.io/badge/.NET-7.0-blue)
+![C#](https://img.shields.io/badge/C%23-10.0-green)
+![SQL Server](https://img.shields.io/badge/SQL%20Server-2019-red)
+![Docker](https://img.shields.io/badge/Docker-24.0-blue)
+![GitHub](https://img.shields.io/badge/GitHub-SSH-black)
+
 ## Phases Completed
 
 ### Phase 1 – Environment Setup
