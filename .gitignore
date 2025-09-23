@@ -1,0 +1,99 @@
+# ========================
+# Visual Studio / IDE
+# ========================
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ========================
+# Build / Output
+# ========================
+bin/
+obj/
+out/
+publish/
+*.dll
+*.exe
+*.app
+*.pdb
+*.cache
+*.log
+
+# ========================
+# NuGet / Packages
+# ========================
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ========================
+# ASP.NET / Web
+# ========================
+wwwroot/
+node_modules/
+bower_components/
+npm-debug.log
+yarn-error.log
+dist/
+
+# ========================
+# User secrets / Sensitive
+# ========================
+secrets.json
+*.key
+appsettings.Development.json
+appsettings.Local.json
+
+# ========================
+# Database / EF Core
+# ========================
+*.mdf
+*.ldf
+*.db
+
+# ========================
+# OS-specific
+# ========================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ========================
+# JetBrains / Rider
+# ========================
+*.iws
+*.iml
+*.ipr
+
+# ========================
+# Temporary / Logs
+# ========================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+*.env
