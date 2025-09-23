@@ -84,4 +84,28 @@ public class AccountController : ControllerBase
             Claims = claims.Select(c => new { c.Type, c.Value })
         });
     }
+
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] LoginDto model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var user = await _userManager.FindByNameAsync(model.Username);
+        if (user == null)
+            return Unauthorized(new { message = "Invalid username or password." });
+
+        var passwordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+        if (!passwordValid)
+            return Unauthorized(new { message = "Invalid username or password." });
+
+        var token = await _jwtTokenService.GenerateJwtToken(user);
+        
+        return Ok(new
+        {
+            Message = "Account logged in!", 
+            Token = token
+        });
+    }
 }

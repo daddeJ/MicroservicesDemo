@@ -37,6 +37,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    AuthorizationPolicies.AddTierPolicies(options);
+});
+
 builder.Services.AddControllers();
 var app = builder.Build();
 
