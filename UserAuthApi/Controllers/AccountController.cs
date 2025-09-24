@@ -59,7 +59,7 @@ public class AccountController : ControllerBase
         return Ok(new {Message = "Account created successfully!", Token = token});
     }
     
-    [Authorize]
+    [Authorize(Policy = "RegularAndAbove")]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
