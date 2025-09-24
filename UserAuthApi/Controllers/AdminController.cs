@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserAuthApi.Data;
 using UserAuthApi.Helpers;
+using UserAuthApi.Services;
 
 namespace UserAuthApi.Controllers;
 /*
@@ -17,64 +18,31 @@ namespace UserAuthApi.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
-    
-    public AdminController(UserManager<IdentityUser> userManager)
+    private readonly IUserQueryService _userQueryService;
+    public AdminController(UserManager<IdentityUser> userManager, IUserQueryService userQueryService)
     {
         _userManager = userManager;
+        _userQueryService = userQueryService;
     }
 
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers(
         [FromQuery(Name = "role")] string? role,
-        [FromQuery(Name = "tier")] int? tier,
-        [FromQuery(Name = "pageNumber")] int pageNumber = 1,
-        [FromQuery(Name = "pageSize")] int pageSize = 10)
+        [FromQuery(Name = "tier")] string? tier,
+        [FromQuery(Name = "page")] int pageNumber = 1,
+        [FromQuery(Name = "size")] int pageSize = 10)
     {
         if (pageNumber <= 0) pageNumber = 1;
         if (pageSize <= 0) pageSize = 10;
         
-        var users = _userManager.Users.ToList();
-        var filteredUsers = new List<UserDto>();
-
-        foreach (var user in users)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            var claims = await _userManager.GetClaimsAsync(user);
-            
-            bool matchesRoles = string.IsNullOrEmpty(role) || roles.Contains(role);
-            bool matchesTier = string.IsNullOrEmpty(tier.ToString()) || claims.Any(c => c.Value == tier.Value.ToString());
-
-            if (matchesRoles && matchesTier)
-            {
-                filteredUsers.Add(new UserDto
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Role = string.Join(", ", roles),
-                    Tier = string.Join(", ", claims.Select(c => c.Value))
-                });
-            }
-            
-            
-        }
-        var totalItems = filteredUsers.Count;
-        var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        pageSize = pageSize > 100 ? 100 : pageSize;
         
-        var pageUsers = filteredUsers
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        var roles = string.IsNullOrEmpty(role) ? null : role.Split(',').Select(r => r.Trim());
+        var tiers = string.IsNullOrEmpty(tier) ? null : tier.Split(',').Select(int.Parse);
 
-        var result = new PageResultDto<UserDto>
-        {
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-            TotalItems = totalItems,
-            TotalPages = totalPages,
-            Items = pageUsers,
-        };
+        var queryableUsers = _userManager.Users.AsQueryable();
 
+        var result = await _userQueryService.GetUsersAsync(queryableUsers, roles, tiers, pageNumber, pageSize);
         return Ok(result);
     }
 

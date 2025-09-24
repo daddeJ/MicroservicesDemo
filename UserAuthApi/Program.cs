@@ -9,6 +9,7 @@ using UserAuthApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

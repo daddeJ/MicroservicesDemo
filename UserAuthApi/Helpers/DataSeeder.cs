@@ -14,6 +14,15 @@ public static class DataSeeder
         { "Leader", 4 },
         { "User", 5 }
     };
+
+    public static readonly List<string> ExecutiveRoleAccess = new List<string>()
+    {
+        "HR", 
+        "Manager", 
+        "Leader", 
+        "Regular"
+    };
+    
     public static async Task SeedRoles(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
