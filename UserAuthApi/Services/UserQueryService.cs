@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using UserAuthApi.Data;
+using UserAuthApi.Helpers;
 
 namespace UserAuthApi.Services;
 
@@ -61,5 +63,80 @@ public class UserQueryService : IUserQueryService
             TotalPages = totalPages,
             Items = pageUsers
         };
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> UpdateUserAsync(string userId, UpdateUserDto model)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return (false, "User not found");
+        
+        if (!string.IsNullOrEmpty(model.Role))
+        {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Any())
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            await _userManager.AddToRoleAsync(user, model.Role);
+        }
+        
+        var tierClaim = (await _userManager.GetClaimsAsync(user))
+            .FirstOrDefault(c => c.Type == "Tier");
+        if (tierClaim != null)
+            await _userManager.RemoveClaimAsync(user, tierClaim);
+        
+        if (!DataSeeder.RoleTierMap.TryGetValue(model.Role, out var expectedTier) 
+            || !string.Equals(expectedTier.ToString(), model.Tier.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            return (false, $"Tier '{model.Tier}' is not valid for role '{model.Role}'.");
+        }
+
+        await _userManager.AddClaimAsync(user, new Claim("Tier", model.Tier.ToString()));
+
+        return (true, null);
+    }
+
+    public bool IsAllowedAccess(List<string> RolesAccess, List<string> roles, List<string> claimValues, int minRange, int maxRange,
+        out string? errorMessage)
+    {
+        errorMessage = null;
+
+        if (roles == null || !roles.Any())
+        {
+            errorMessage = "User has no assigned roles.";
+            return false;
+        }
+        
+        var invalidRoles = roles.Except(RolesAccess, StringComparer.OrdinalIgnoreCase).ToList();
+        if (invalidRoles.Any())
+        {
+            errorMessage = $"Allowed roles: {string.Join(", ", invalidRoles)}";
+            return false;
+        }
+
+        if (claimValues == null || !claimValues.Any())
+        {
+            errorMessage = "User has no assigned tiers.";
+            return false;
+        }
+        
+        var parsedTiers = new List<int>();
+        foreach (var claimValue in claimValues)
+        {
+            if (int.TryParse(claimValue, out var parsedTier)) parsedTiers.Add(parsedTier);
+            else
+            {
+                errorMessage = $"Invalid tier: {claimValue}";
+                return false;
+            }
+        }
+
+        if (parsedTiers.Any(t => t < minRange || t > maxRange))
+        {
+            errorMessage = $"Tier must be  between {minRange} and {maxRange}.";
+            return false;
+        }
+        
+        return true;
     }
 }

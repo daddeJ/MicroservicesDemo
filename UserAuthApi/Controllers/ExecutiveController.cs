@@ -62,9 +62,42 @@ public class ExecutiveController : ControllerBase
     //  - GET <IP>/api/executive/users/{id}
     //  - Query:
     //      * id <UserId>
+    //      * tier <2, 3, 4, 5>
+    //      * role <HR, Manager, Leader, Regular>
     //  - Constraint: 
     //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
+    [HttpGet("users/{id}")]
+    public async Task<IActionResult> GetUserById(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ExecutiveRoleAccess;
+        
+        bool canView = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            2,
+            5,
+            out var errorAccess);
+        
+        if (!canView) return BadRequest(new { message = errorAccess });
+        
+        return Ok(new
+        {
+            user.Id,
+            user.UserName,
+            user.Email,
+            Roles = userRoles,
+            Claims = userClaims.Select(c => new { c.Type, c.Value })
+        });
+    }
+    
     
     // TODO: Update user tier/role (tier 2-5, roles: HR, Manager, Leader, Regular)
     //  - PATCH <IP>/api/executive/users/{id}
@@ -73,6 +106,32 @@ public class ExecutiveController : ControllerBase
     //  - Constraint: 
     //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
+    [HttpPatch("users/{id}")]
+    public async Task<IActionResult> UpdateUserRoleTier(string id, [FromBody] UpdateUserDto model)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ExecutiveRoleAccess;
+        
+        bool canDelete = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            2,
+            5,
+            out var errorAccess);
+        
+        if (!canDelete) return BadRequest(new { message = errorAccess });
+        
+        var (success, error) = await _userQueryService.UpdateUserAsync(id, model);
+        if (!success) return BadRequest(new { message = error });
+
+        return Ok(new { message = "User role and tier updated successfully" });
+    }
     
     // TODO: Delete user (tier 2-5, roles: HR, Manager, Leader, Regular)
     //  - DELETE <IP>/api/executive/users/{id}
@@ -81,4 +140,30 @@ public class ExecutiveController : ControllerBase
     //  - Constraint: 
     //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
+    [HttpDelete("users/{id}")]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ExecutiveRoleAccess;
+        
+        bool canDelete = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            2,
+            5,
+            out var error);
+
+        if (!canDelete) return BadRequest(new { message = error });
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = DateTimeOffset.MaxValue;
+        await _userManager.UpdateAsync(user);
+        return Ok(new { message = "User has been deleted successfully" });
+    }
 }

@@ -11,4 +11,15 @@ public interface IUserQueryService
         IEnumerable<int>? tiers = null,
         int pageNumber = 1,
         int pageSize = 10);
+    
+    Task<(bool Success, string? ErrorMessage)> UpdateUserAsync(
+        string userId, UpdateUserDto user);
+
+    bool IsAllowedAccess(
+        List<string> RolesAccess,
+        List<string> roles, 
+        List<string> claimValues,
+        int minRange,
+        int maxRange,
+        out string? errorMessage);
 }

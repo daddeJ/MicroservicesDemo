@@ -75,31 +75,8 @@ public class AdminController : ControllerBase
     [HttpPatch("users/{id}")]
     public async Task<IActionResult> UpdateUserRoleTier(string id, [FromBody] UpdateUserDto model)
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-            return NotFound();
-
-        if (!string.IsNullOrEmpty(model.Role))
-        {
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            if (currentRoles.Any())
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-
-            await _userManager.AddToRoleAsync(user, model.Role);
-        }
-
-        var tierClaim = (await _userManager.GetClaimsAsync(user))
-            .FirstOrDefault(c => c.Type == "Tier");
-        if (tierClaim != null)
-            await _userManager.RemoveClaimAsync(user, tierClaim);
-
-        if (!DataSeeder.RoleTierMap.TryGetValue(model.Role, out var expectedTier) 
-            || !string.Equals(expectedTier.ToString(), model.Tier.ToString(), StringComparison.OrdinalIgnoreCase))
-        {
-            return BadRequest(new { message = $"Tier '{model.Tier}' is not valid for role '{model.Role}'." });
-        }
-
-        await _userManager.AddClaimAsync(user, new Claim("Tier", model.Tier.ToString()));
+        var (success, error) = await _userQueryService.UpdateUserAsync(id, model);
+        if (!success) return BadRequest(new { message = error });
 
         return Ok(new { message = "User role and tier updated successfully" });
     }
