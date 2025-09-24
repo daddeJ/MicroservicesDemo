@@ -14,6 +14,16 @@ public static class DataSeeder
         { "Leader", 4 },
         { "User", 5 }
     };
+    
+    public static readonly List<string> AdminRoleAccess = new List<string>()
+    {
+        "Admin",
+        "Executive",
+        "HR", 
+        "Manager", 
+        "Leader", 
+        "Regular"
+    };
 
     public static readonly List<string> ExecutiveRoleAccess = new List<string>()
     {

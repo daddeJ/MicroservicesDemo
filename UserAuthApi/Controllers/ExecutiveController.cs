@@ -60,19 +60,25 @@ public class ExecutiveController : ControllerBase
     
     // TODO: Read single user (tier 2-5, roles: HR, Manager, Leader, Regular)
     //  - GET <IP>/api/executive/users/{id}
-    //  - Constraint 
-    //      * if tier < 1 return bad request
+    //  - Query:
+    //      * id <UserId>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
     
     // TODO: Update user tier/role (tier 2-5, roles: HR, Manager, Leader, Regular)
     //  - PATCH <IP>/api/executive/users/{id}
-    //  - Constraint 
-    //      * if tier < 1 return bad request
+    //  - Query:
+    //      * id <UserId>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
     
     // TODO: Delete user (tier 2-5, roles: HR, Manager, Leader, Regular)
     //  - DELETE <IP>/api/executive/users/{id}
-    //  - Constraint 
-    //      * if tier < 1 return bad request
+    //  - Query:
+    //      * id <UserId>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
     //      * if role != HR, Manger, Leader, Regular return bad request
 }

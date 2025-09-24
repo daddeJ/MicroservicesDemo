@@ -37,12 +37,17 @@ public class AdminController : ControllerBase
         
         pageSize = pageSize > 100 ? 100 : pageSize;
         
-        var roles = string.IsNullOrEmpty(role) ? null : role.Split(',').Select(r => r.Trim());
-        var tiers = string.IsNullOrEmpty(tier) ? null : tier.Split(',').Select(int.Parse);
+        var allowedTiers = Enumerable.Range(0, 5).ToList();
+        if (!QueryValidationHelper.TryValidateIntList(tier, allowedTiers, out var tierList, out var tierError))
+            return BadRequest(new { message = tierError });
+
+        var allowedRoles = DataSeeder.AdminRoleAccess;
+        if (!QueryValidationHelper.TryValidateStringList(role, allowedRoles, out var roleList, out var roleError))
+            return BadRequest(new { message = roleError });
 
         var queryableUsers = _userManager.Users.AsQueryable();
 
-        var result = await _userQueryService.GetUsersAsync(queryableUsers, roles, tiers, pageNumber, pageSize);
+        var result = await _userQueryService.GetUsersAsync(queryableUsers, roleList, tierList, pageNumber, pageSize);
         return Ok(result);
     }
 
