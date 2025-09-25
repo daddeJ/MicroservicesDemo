@@ -1,0 +1,171 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using UserAuthApi.Data;
+using UserAuthApi.Helpers;
+using UserAuthApi.Services;
+
+namespace UserAuthApi.Controllers;
+
+[ApiController]
+[Route("api/manager")]
+[Authorize(Policy = "ManagerAndAbove")]
+public class ManagerController : ControllerBase
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserQueryService  _userQueryService;
+
+    public ManagerController(UserManager<ApplicationUser> userManager, IUserQueryService userQueryService)
+    {
+        _userManager = userManager;
+        _userQueryService = userQueryService;
+    }
+    
+    // TODO: Read users list (tier 4, 5, roles: HR, Manager, Leader, Regular)
+    //  - GET <IP>/api/manager/users?tier=4,5&role=Leader,Regular
+    //  - Query:
+    //      * tier <4, 5>
+    //      * role <Leader, Regular>
+    //      * pageNumber min default <1>
+    //      * pageSize min default <10>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
+    //      * if role != HR, Manger, Leader, Regular return bad request
+    
+    [HttpGet("users")]
+    public async Task<IActionResult> GetUsers(
+        [FromQuery(Name = "role")] string? role,
+        [FromQuery(Name = "tier")] string? tier,
+        [FromQuery(Name = "page")] int pageNumber,
+        [FromQuery(Name = "size")] int pageSize)
+    {
+        if (pageNumber <= 0) pageNumber = 1;
+        if (pageSize <= 0) pageSize = 10;
+        
+        pageSize = pageSize > 100 ? 100 : pageSize;
+
+        var allowedTiers = Enumerable.Range(4, 5).ToList();
+        if (!QueryValidationHelper.TryValidateIntList(tier, allowedTiers, out var tierList, out var tierError))
+            return BadRequest(new { message = tierError });
+
+        var allowedRoles = DataSeeder.ManagerRoleAccess;
+        if (!QueryValidationHelper.TryValidateStringList(role, allowedRoles, out var roleList, out var roleError))
+            return BadRequest(new { message = roleError });
+
+        var queryableUsers = _userManager.Users.AsQueryable();
+
+        var result = await _userQueryService.GetUsersAsync(queryableUsers, roleList, tierList, pageNumber, pageSize);
+        return Ok(result);
+    }
+    
+    // TODO: Read single user (tier 4-5, roles: Leader, Regular)
+    //  - GET <IP>/api/manager/users/{id}
+    //  - Query:
+    //      * id <UserId>
+    //      * tier <4, 5>
+    //      * role <Leader, Regular>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
+    //      * if role != Leader, Regular return bad request
+    
+    [HttpGet("users/{id}")]
+    public async Task<IActionResult> GetUserById(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ManagerRoleAccess;
+        
+        bool canView = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            4,
+            5,
+            out var errorAccess);
+        
+        if (!canView) return BadRequest(new { message = errorAccess });
+        
+        return Ok(new
+        {
+            user.Id,
+            user.UserName,
+            user.Email,
+            Roles = userRoles,
+            Claims = userClaims.Select(c => new { c.Type, c.Value })
+        });
+    }
+    
+    // TODO: Update user tier/role (tier 4-5, roles: Leader, Regular)
+    //  - PATCH <IP>/api/manager/users/{id}
+    //  - Query:
+    //      * id <UserId>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
+    //      * if role != Leader, Regular return bad request
+    
+    [HttpPatch("users/{id}")]
+    public async Task<IActionResult> UpdateUserRoleTier(string id, [FromBody] UpdateUserDto model)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ManagerRoleAccess;
+        
+        bool canDelete = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            4,
+            5,
+            out var errorAccess);
+        
+        if (!canDelete) return BadRequest(new { message = errorAccess });
+        
+        var (success, error) = await _userQueryService.UpdateUserAsync(id, model);
+        if (!success) return BadRequest(new { message = error });
+
+        return Ok(new { message = "User role and tier updated successfully" });
+    }
+    
+    // TODO: Delete user (tier 4-5, roles: Leader, Regular)
+    //  - DELETE <IP>/api/manager/users/{id}
+    //  - Query:
+    //      * id <UserId>
+    //  - Constraint: 
+    //      * if tier < 1 && if tier > 6 return bad request
+    //      * if role != HR, Manger, Leader, Regular return bad request
+    
+    [HttpDelete("users/{id}")]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+            return NotFound();
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var claimValues = userClaims.Select(c => c.Value).ToList();
+        var allowedRoles = DataSeeder.ManagerRoleAccess;
+        
+        bool canDelete = _userQueryService.IsAllowedAccess(
+            allowedRoles, userRoles.ToList(),
+            claimValues,
+            4,
+            5,
+            out var error);
+
+        if (!canDelete) return BadRequest(new { message = error });
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = DateTimeOffset.MaxValue;
+        await _userManager.UpdateAsync(user);
+        return Ok(new { message = "User has been deleted successfully" });
+    }
+}

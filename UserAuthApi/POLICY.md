@@ -270,7 +270,7 @@ curl -X PATCH "<IP>/api/user/profile" \
 |------------|-------|-------|------------|-------------|---------------|
 | **SuperAdminOnly** | Admin | 0 | All users | All users | All users |
 | **ExecutivesOnly** | Executive | 1, 0 | Tier 2-5 (HR, Manager, Leader, Regular) | Tier 2-5 users | Tier 2-5 users |
-| **ManagerAndAbove** | Admin, Executive, HR, Manager, Leader | 0, 1, 2, 3, 4 | Tier 4-5 (Leader, Regular) | Tier 4-5 users | Tier 4-5 users |
+| **ManagerAndAbove** | Admin, Executive, HR, Manager | 0, 1, 2, 3, 4 | Tier 4-5 (Leader, Regular) | Tier 4-5 users | Tier 4-5 users |
 | **RegularAndAbove** | All roles | 0, 1, 2, 3, 4, 5 | Own profile only | Own profile only | Own profile only |
 
 ---

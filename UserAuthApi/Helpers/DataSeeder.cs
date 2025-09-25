@@ -33,6 +33,12 @@ public static class DataSeeder
         "Regular"
     };
     
+    public static readonly List<string> ManagerRoleAccess = new List<string>()
+    {
+        "Leader", 
+        "Regular"
+    };
+    
     public static async Task SeedRoles(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();

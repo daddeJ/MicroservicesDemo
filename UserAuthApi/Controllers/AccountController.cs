@@ -72,16 +72,13 @@ public class AccountController : ControllerBase
 
         var claims = await _userManager.GetClaimsAsync(user);
 
-        return Ok(new
+        return Ok(new UserDto
         {
-            User = new
-            {
-                user.Id,
-                user.UserName,
-                user.Email
-            },
-            Roles = roles,
-            Claims = claims.Select(c => new { c.Type, c.Value })
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Role = string.Join(", ", roles),
+            Tier = string.Join(", ", claims.Select(c => c.Value))
         });
     }
 
