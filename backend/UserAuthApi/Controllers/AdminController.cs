@@ -17,9 +17,9 @@ namespace UserAuthApi.Controllers;
 [Authorize(Policy = "SuperAdminOnly")]
 public class AdminController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserQueryService _userQueryService;
-    public AdminController(UserManager<IdentityUser> userManager, IUserQueryService userQueryService)
+    public AdminController(UserManager<ApplicationUser> userManager, IUserQueryService userQueryService)
     {
         _userManager = userManager;
         _userQueryService = userQueryService;
@@ -37,7 +37,7 @@ public class AdminController : ControllerBase
         
         pageSize = pageSize > 100 ? 100 : pageSize;
         
-        var allowedTiers = Enumerable.Range(0, 5).ToList();
+        var allowedTiers = Enumerable.Range(1, 5).ToList();
         if (!QueryValidationHelper.TryValidateIntList(tier, allowedTiers, out var tierList, out var tierError))
             return BadRequest(new { message = tierError });
 
@@ -62,13 +62,13 @@ public class AdminController : ControllerBase
         var roles = await _userManager.GetRolesAsync(user);
         var claims = await _userManager.GetClaimsAsync(user);
         
-        return Ok(new
+        return Ok(new UserDto
         {
-            user.Id,
-            user.UserName,
-            user.Email,
-            Roles = roles,
-            Claims = claims.Select(c => new { c.Type, c.Value })
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Role = string.Join(", ", roles),
+            Tier = string.Join(", ", claims.Select(c => c.Value))
         });
     }
 
