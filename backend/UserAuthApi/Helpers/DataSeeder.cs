@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using UserAuthApi.Data;
 
@@ -37,6 +38,16 @@ public static class DataSeeder
     {
         "Leader", 
         "Regular"
+    };
+
+    public static readonly List<Claim> TierList = new List<Claim>()
+    {
+        new Claim("Tier", "0"),
+        new Claim("Tier", "1"),
+        new Claim("Tier", "2"),
+        new Claim("Tier", "3"),
+        new Claim("Tier", "4"),
+        new Claim("Tier", "5")
     };
     
     public static async Task SeedRoles(IServiceProvider serviceProvider)
