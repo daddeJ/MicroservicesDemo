@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using UserAuthApi.Data;
-using UserAuthApi.Helpers;
-using UserAuthApi.Models;
-using UserAuthApi.Services;
+using AccountService.Data;
+using AccountService.Helpers;
+using AccountService.Models;
+using AccountService.Services;
 
-namespace UserAuthApi.Controllers;
+namespace AccountService.Controllers;
 
 [ApiController]
 [Route("api/manager")]

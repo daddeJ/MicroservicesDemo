@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace UserAuthApi.Data;
+namespace UserAuthApi.Models;
 
 public class UpdateUserDto
 {

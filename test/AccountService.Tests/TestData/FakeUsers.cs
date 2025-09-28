@@ -1,7 +1,7 @@
-using UserAuthApi.Data;
-using UserAuthApi.Models;
+using AccountService.Data;
+using AccountService.Models;
 
-namespace UserAuthApi.Tests.TestData;
+namespace AccountService.Tests.TestData;
 
 public static class FakeUsers
 {

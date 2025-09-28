@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthApi", "backend\User
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountService", "backend\AccountService\AccountService.csproj", "{974C7CA5-3599-4DCD-A0BD-77A168971F42}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountService.Tests", "test\AccountService.Tests\AccountService.Tests.csproj", "{B4DB7989-7394-4F94-96B0-55DC27267417}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{974C7CA5-3599-4DCD-A0BD-77A168971F42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{974C7CA5-3599-4DCD-A0BD-77A168971F42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{974C7CA5-3599-4DCD-A0BD-77A168971F42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4DB7989-7394-4F94-96B0-55DC27267417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4DB7989-7394-4F94-96B0-55DC27267417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4DB7989-7394-4F94-96B0-55DC27267417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4DB7989-7394-4F94-96B0-55DC27267417}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CC2BDB73-2177-4191-83ED-DA80AA20BB5C} = {9B182465-858B-4BAA-A778-8E0252BB7D9C}
 		{7CF75099-DA40-42BA-8FE2-73B57335CEA5} = {D07B0712-4EE6-4FD8-AC49-EC5FDE3C75C6}
 		{974C7CA5-3599-4DCD-A0BD-77A168971F42} = {D07B0712-4EE6-4FD8-AC49-EC5FDE3C75C6}
+		{B4DB7989-7394-4F94-96B0-55DC27267417} = {9B182465-858B-4BAA-A778-8E0252BB7D9C}
 	EndGlobalSection
 EndGlobal

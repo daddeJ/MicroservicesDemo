@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserAuthApi.Data;
 using UserAuthApi.Services;
 using UserAuthApi.Helpers;
+using UserAuthApi.Models;
 
 namespace UserAuthApi.Controllers;
 

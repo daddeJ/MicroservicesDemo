@@ -3,15 +3,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using UserAuthApi.Controllers;
-using UserAuthApi.Data;
-using UserAuthApi.Helpers;
-using UserAuthApi.Services;
-using UserAuthApi.Tests.Helpers;
-using UserAuthApi.Tests.TestData;
-using UserAuthApi.Models;
+using AccountService.Controllers;
+using AccountService.Data;
+using AccountService.Helpers;
+using AccountService.Services;
+using AccountService.Tests.Helpers;
+using AccountService.Tests.TestData;
+using AccountService.Models;
+using Xunit;
 
-namespace UserAuthApi.Tests.Controllers;
+namespace AccountService.Tests.Controllers;
 
 public class AdminControllerTests
 {

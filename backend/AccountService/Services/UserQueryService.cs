@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using UserAuthApi.Models;
-using UserAuthApi.Helpers;
+using AccountService.Models;
+using AccountService.Helpers;
 
-namespace UserAuthApi.Services;
+namespace AccountService.Services;
 
 public class UserQueryService : IUserQueryService
 {

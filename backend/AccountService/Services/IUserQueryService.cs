@@ -1,7 +1,8 @@
+using AccountService.Models;
 using Microsoft.AspNetCore.Identity;
-using UserAuthApi.Models;
+using AccountService.Models;
 
-namespace UserAuthApi.Services;
+namespace AccountService.Services;
 
 public interface IUserQueryService
 {

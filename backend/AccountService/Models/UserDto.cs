@@ -1,4 +1,4 @@
-namespace UserAuthApi.Data;
+namespace AccountService.Models;
 
 public class UserDto
 {
