@@ -2,11 +2,45 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using UserAuthApi.Data;
 using UserAuthApi.Helpers;
+using UserAuthApi.Middlewares;
 using UserAuthApi.Services;
+using ExceptionHandlerMiddleware = Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware;
+
+// ✅ Enable Serilog self-diagnostics first
+Serilog.Debugging.SelfLog.Enable(msg =>
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("Serilog ERROR: " + msg);
+    Console.ResetColor();
+});
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .Enrich.FromLogContext()
+        .Enrich.WithCorrelationId()
+        .Enrich.WithClientIp()
+        .WriteTo.Console()
+        .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+        .WriteTo.Async(a => a.MSSqlServer(
+            connectionString: context.Configuration.GetConnectionString("LoggerConnection"),
+            sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+            {
+                TableName = "ApplicationLogs",
+                AutoCreateSqlTable = true,
+            },
+            restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information
+        ))
+        .WriteTo.Async(a => a.Console());
+});
+
+// ✅ Test log entry to check DB sink at startup
+Log.Information("=== Serilog startup test entry ===");
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
@@ -48,6 +82,7 @@ var app = builder.Build();
 
 await DataSeeder.SeedRoles(app.Services);
 
+app.UseMiddleware<EnhancedLoggingMiddleware>();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

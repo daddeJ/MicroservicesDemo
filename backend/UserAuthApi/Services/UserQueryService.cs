@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using UserAuthApi.Data;
 using UserAuthApi.Models;
 using UserAuthApi.Helpers;
 
@@ -7,15 +8,15 @@ namespace UserAuthApi.Services;
 
 public class UserQueryService : IUserQueryService
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UserQueryService(UserManager<IdentityUser> userManager)
+    public UserQueryService(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
     }
     
     public async Task<PageResultDto<UserDto>> GetUsersAsync(
-        IQueryable<IdentityUser> query, 
+        IQueryable<ApplicationUser> query, 
         IEnumerable<string>? roles = null, 
         IEnumerable<int>? tiers = null, 
         int pageNumber = 1,

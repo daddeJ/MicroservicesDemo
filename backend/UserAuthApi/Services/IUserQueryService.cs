@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using UserAuthApi.Data;
 using UserAuthApi.Models;
 
 namespace UserAuthApi.Services;
@@ -6,7 +7,7 @@ namespace UserAuthApi.Services;
 public interface IUserQueryService
 {
     Task<PageResultDto<UserDto>> GetUsersAsync(
-        IQueryable<IdentityUser> query,
+        IQueryable<ApplicationUser> query,
         IEnumerable<string>? roles = null,
         IEnumerable<int>? tiers = null,
         int pageNumber = 1,

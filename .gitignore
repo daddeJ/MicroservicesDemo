@@ -91,6 +91,7 @@ $RECYCLE.BIN/
 *.bak
 *.swp
 *.swo
+logs/
 
 # ========================
 # Docker

@@ -18,10 +18,12 @@ public static class AuthorizationPolicies
             policy.RequireAssertion(context =>
             {
                 var tierClaim = context.User.FindFirst("Tier")?.Value;
-                if (tierClaim != null)
+                if (tierClaim == null)
                     return false;
+
                 if (!int.TryParse(tierClaim, out var tier))
                     return false;
+
                 return tier >= minTier && tier <= maxTier;
             }));
     }
