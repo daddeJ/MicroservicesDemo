@@ -1,15 +1,30 @@
 #!/bin/bash
 
 API_URL="http://localhost:5136/api/account/register"
+HEALTH_URL="http://localhost:5136/api/health"
+
+echo "=== Checking API Health ==="
+HEALTH_RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$HEALTH_URL")
+HEALTH_BODY=$(echo "$HEALTH_RESPONSE" | head -n 1)
+HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | tail -n 1)
+
+if [[ "$HEALTH_STATUS" != "200" ]]; then
+  echo "❌ API health check failed (HTTP $HEALTH_STATUS)"
+  echo "Response: $HEALTH_BODY"
+  exit 1
+else
+  echo "✅ API health check passed (HTTP $HEALTH_STATUS)"
+fi
+echo
 
 # Array of JSON payloads
 declare -a USERS=(
-'{"UserName":"adminUser3","Email":"admin3@example.com","Password":"AdminPass333!","ConfirmPassword":"AdminPass333!","Role":"Admin","Tier":"0"}'
-'{"UserName":"executiveUser3","Email":"executive3@example.com","Password":"ExecutivePass333!","ConfirmPassword":"ExecutivePass333!","Role":"Executive","Tier":"1"}'
-'{"UserName":"hrUser3","Email":"hr3@example.com","Password":"hrPassword333!","ConfirmPassword":"hrPassword333!","Role":"HR","Tier":"2"}'
-'{"UserName":"managerUser3","Email":"manager3@example.com","Password":"ManagerPass333!","ConfirmPassword":"ManagerPass333!","Role":"Manager","Tier":"3"}'
-'{"UserName":"leaderUser3","Email":"leader3@example.com","Password":"LeaderPass333!","ConfirmPassword":"LeaderPass333!","Role":"Leader","Tier":"4"}'
-'{"UserName":"regularUser3","Email":"regular3@example.com","Password":"RegularPass333!","ConfirmPassword":"RegularPass333!","Role":"User","Tier":"5"}'
+'{"UserName":"adminUser4","Email":"admin4@example.com","Password":"AdminPass444!","ConfirmPassword":"AdminPass444!","Role":"Admin","Tier":"0"}'
+'{"UserName":"executiveUser4","Email":"executive4@example.com","Password":"ExecutivePass444!","ConfirmPassword":"ExecutivePass444!","Role":"Executive","Tier":"1"}'
+'{"UserName":"hrUser4","Email":"hr4@example.com","Password":"hrPassword444!","ConfirmPassword":"hrPassword444!","Role":"HR","Tier":"2"}'
+'{"UserName":"managerUser4","Email":"manager4@example.com","Password":"ManagerPass444!","ConfirmPassword":"ManagerPass444!","Role":"Manager","Tier":"3"}'
+'{"UserName":"leaderUser4","Email":"leader4@example.com","Password":"LeaderPass444!","ConfirmPassword":"LeaderPass444!","Role":"Leader","Tier":"4"}'
+'{"UserName":"regularUser4","Email":"regular4@example.com","Password":"RegularPass444!","ConfirmPassword":"RegularPass444!","Role":"User","Tier":"5"}'
 )
 
 i=1

@@ -9,6 +9,7 @@ public static class AuthorizationPolicies
         AddTierPolicy(options, "SuperAdminOnly", minTier: 0, maxTier: 0);
         AddTierPolicy(options, "ExecutivesOnly", minTier: 0, maxTier: 1);
         AddTierPolicy(options, "ManagerAndAbove", minTier: 0, maxTier: 3);
+        AddTierPolicy(options, "LeaderAndAbove", minTier: 0, maxTier: 4);
         AddTierPolicy(options, "RegularAndAbove", minTier: 0, maxTier: 5);
     }
     

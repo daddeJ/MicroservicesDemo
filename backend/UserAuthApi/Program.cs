@@ -7,9 +7,7 @@ using UserAuthApi.Data;
 using UserAuthApi.Helpers;
 using UserAuthApi.Middlewares;
 using UserAuthApi.Services;
-using ExceptionHandlerMiddleware = Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware;
 
-// ✅ Enable Serilog self-diagnostics first
 Serilog.Debugging.SelfLog.Enable(msg =>
 {
     Console.ForegroundColor = ConsoleColor.Red;
@@ -18,6 +16,8 @@ Serilog.Debugging.SelfLog.Enable(msg =>
 });
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHealthChecks();
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
@@ -39,14 +39,17 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .WriteTo.Async(a => a.Console());
 });
 
-// ✅ Test log entry to check DB sink at startup
 Log.Information("=== Serilog startup test entry ===");
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
+builder.Services.AddScoped<IAuditLoggerService, AuditLoggerService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<LoggingDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LoggerConnection")));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -82,6 +85,7 @@ var app = builder.Build();
 
 await DataSeeder.SeedRoles(app.Services);
 
+app.MapHealthChecks("api/health");
 app.UseMiddleware<EnhancedLoggingMiddleware>();
 app.UseRouting();
 app.UseAuthentication();

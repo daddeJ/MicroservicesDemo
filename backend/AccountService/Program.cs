@@ -8,6 +8,8 @@ using AccountService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -47,6 +49,7 @@ var app = builder.Build();
 
 await DataSeeder.SeedRoles(app.Services);
 
+app.MapHealthChecks("api/health");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

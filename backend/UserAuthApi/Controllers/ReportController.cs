@@ -7,18 +7,32 @@ namespace UserAuthApi.Controllers;
 [Route("api/[controller]")]
 public class ReportController : ControllerBase
 {
+    [Authorize(Policy = "SuperAdminOnly")]
+    [HttpGet("admin")]
+    public IActionResult AdminReport()
+    {
+        return Ok("Access Granted: Executives only");
+    }
+    
     [Authorize(Policy = "ExecutivesOnly")]
-    [HttpGet("financial")]
-    public IActionResult FinancialReport()
+    [HttpGet("executives")]
+    public IActionResult ExecutiveReport()
     {
         return Ok("Access Granted: Executives only");
     }
     
     [Authorize(Policy = "ManagerAndAbove")]
-    [HttpGet("team")]
-    public IActionResult TeamReport()
+    [HttpGet("manager")]
+    public IActionResult ManagerReport()
     {
         return Ok("Access Granted: Managers and above");
+    }
+    
+    [Authorize(Policy = "LeaderAndAbove")]
+    [HttpGet("leader")]
+    public IActionResult TeamReport()
+    {
+        return Ok("Access Granted: Leader and above");
     }
     
     [Authorize(Policy = "RegularAndAbove")]
