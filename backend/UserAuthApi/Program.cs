@@ -18,6 +18,7 @@ Serilog.Debugging.SelfLog.Enable(msg =>
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
+builder.Services.AddMemoryCache(); 
 
 builder.Host.UseSerilog((context, services, configuration) =>
 {
@@ -87,6 +88,11 @@ await DataSeeder.SeedRoles(app.Services);
 
 app.MapHealthChecks("api/health");
 app.UseMiddleware<EnhancedLoggingMiddleware>();
+app.UseMiddleware<RateLimitingMiddleware>(
+    10,
+    TimeSpan.FromMinutes(1)
+);
+app.UseMiddleware<HoneypotMiddleware>();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
