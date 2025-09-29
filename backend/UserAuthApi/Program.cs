@@ -17,6 +17,15 @@ Serilog.Debugging.SelfLog.Enable(msg =>
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("LoginRegisterPolicy", policy =>
+    {
+        policy.WithMethods("GET", "POST")
+            .WithHeaders("Content-Type");
+    });
+});
+
 builder.Services.AddHealthChecks();
 builder.Services.AddMemoryCache(); 
 
@@ -86,16 +95,17 @@ var app = builder.Build();
 
 await DataSeeder.SeedRoles(app.Services);
 
+app.UseCors("LoginRegisterPolicy");
+
 app.MapHealthChecks("api/health");
+
 app.UseMiddleware<EnhancedLoggingMiddleware>();
-app.UseMiddleware<RateLimitingMiddleware>(
-    10,
-    TimeSpan.FromMinutes(1)
-);
+app.UseMiddleware<RateLimitingMiddleware>(10,TimeSpan.FromMinutes(1));
 app.UseMiddleware<HoneypotMiddleware>();
-app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
